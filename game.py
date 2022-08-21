@@ -1,6 +1,3 @@
-import pygame
-
-
 class Game:
     def __init__(self, id):
         self.p1Went = False
@@ -8,18 +5,17 @@ class Game:
         self.ready = False
         self.id = id
         self.moves = [None, None]
-        self.wins = [0, 0]
+        self.wins = [0,0]
         self.ties = 0
 
     def get_player_move(self, p):
         """
-        :param p:[0,1], 0 represent player 1 and 1 represent player 2
+        :param p: [0,1]
         :return: Move
         """
         return self.moves[p]
 
-    def player(self, player, move):
-        # update player's move
+    def play(self, player, move):
         self.moves[player] = move
         if player == 0:
             self.p1Went = True
@@ -27,29 +23,29 @@ class Game:
             self.p2Went = True
 
     def connected(self):
-        # if 2 players currently connected to the game
         return self.ready
 
     def bothWent(self):
         return self.p1Went and self.p2Went
 
     def winner(self):
-        # who won the game
-        p1 = self.moves[0].upper()[0]  # R = Rock, P = paper, S = scissors
+
+        p1 = self.moves[0].upper()[0]
         p2 = self.moves[1].upper()[0]
+
         winner = -1
-        if p1 == "R" and p2 == "P":
-            winner = 1
-        elif p1 == "R" and p2 == "S":
+        if p1 == "R" and p2 == "S":
             winner = 0
+        elif p1 == "S" and p2 == "R":
+            winner = 1
         elif p1 == "P" and p2 == "R":
             winner = 0
-        elif p1 == "P" and p2 == "S":
-            winner = 1
-        elif p1 == "S" and p2 == "R":
+        elif p1 == "R" and p2 == "P":
             winner = 1
         elif p1 == "S" and p2 == "P":
             winner = 0
+        elif p1 == "P" and p2 == "S":
+            winner = 1
 
         return winner
 
