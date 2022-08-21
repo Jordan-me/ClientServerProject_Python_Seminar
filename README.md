@@ -6,3 +6,8 @@
 
 https://user-images.githubusercontent.com/68491359/183878526-070bbfad-7078-4d1e-8790-95bfab8050cd.mov
 
+## MultipleRockPaperScissors :
+
+https://user-images.githubusercontent.com/68491359/185786643-9849c8e7-0145-4232-8a5d-157f8eb9f26f.mov
+
+
