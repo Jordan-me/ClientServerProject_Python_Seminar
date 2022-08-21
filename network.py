@@ -2,6 +2,7 @@ import errno
 import socket
 import pickle
 
+
 class Network:
     def __init__(self):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -16,7 +17,7 @@ class Network:
     def connect(self):
         try:
             self.client.connect(self.addr)
-            return pickle.loads(self.client.recv(2048))
+            return self.client.recv(2048).decode()  # Get player number- 0 or 1
         except socket.error as e:
             if e.errno == errno.EADDRINUSE:
                 print("port in use")
@@ -24,10 +25,9 @@ class Network:
                 print("connected")
         self.client.close()
 
-
     def send(self, data):
         try:
-            self.client.send(pickle.dumps(data))
-            return pickle.loads(self.client.recv(2048))
+            self.client.send(str.encode(data))
+            return pickle.loads(self.client.recv(2048*2))
         except socket.error as e:
             print(e)

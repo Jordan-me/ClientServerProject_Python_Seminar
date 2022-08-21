@@ -3,8 +3,8 @@ import socket
 from _thread import *
 import sys
 
-# localhost- we are only gonna able to connect over our local network (only who is on our Wi-Fi network)
-from player import Player
+# Unlimited games running at the same time, those games will be access by their id
+from game import Game
 
 server = "192.168.1.178"
 port = 5555
@@ -22,49 +22,66 @@ except socket.error as e:
 s.listen(2)
 print("Waiting for a connection, Server Started")
 
-players = [Player(0,0,50,50,(255,0,0)), Player(100,100,50,50,(0,0,255))]
+connected = set()
+games = {}
+idCount = 0
 
-def threaded_client(conn, player):
+
+def threaded_client(conn, p, gameId):
     """
     continually run while our client is still connected
     :param conn: stands for connection
     :return:
     """
-    conn.send(pickle.dumps(players[player]))
+    global idCount
+    conn.send(str.encode(str(p)))
+
     reply = ""
     while True:
         try:
-            data = pickle.loads(conn.recv(2048))  # 2048: amount of information I trying to receive
-            players[player] = data
-            # reply = data.decode("utf-8")  # sending an info over a client server system we have to encode the info
-            if not data:
-                print("Disconnected")
-                break
-            else:
-                print("Player: ",player)
-                if player == 1:
-                    reply = players[0]
-                else:
-                    reply = players[1]
-                print("Received: ", data)
-                print("Sending: ", reply)
+            data = conn.recv(4096).decode()
+            if gameId in games:  # check if the game still exist
+                game = games[gameId]
 
-            # encode string into bytes object
-            conn.sendall(pickle.dumps(reply))
+                if not data:
+                    break
+                else:
+                    if data == "reset":
+                        game.resetWent()
+                    elif data != "get":
+                        game.play(p, data)  # the data is move
+
+                    reply = game
+                    conn.sendall(pickle.dumps(reply))
+            else:
+                break
         except:
             break
 
     print("Lost connection")
+    try:
+        del games[gameId]
+        print("Closing Game: ", gameId)
+    except:
+        pass
+
+    idCount -=1
     conn.close()
 
-
-current_player = 0
 
 # continuously look for connections
 while True:
     # addr: IP address, conn: object describe what connected
     conn, addr = s.accept()  # accept any incoming connection
     print("Connected to:", addr)
+    idCount += 1
+    p = 0  # current player
+    gameId = (idCount - 1) // 2
+    if idCount % 2 == 1:
+        games[gameId] = Game(gameId)
+        print("Creating a new game...")
+    else:
+        games[gameId].ready = True  # the second player has connected to the game
+        p = 1
 
-    start_new_thread(threaded_client, (conn, current_player))
-    current_player += 1
+    start_new_thread(threaded_client, (conn, p, gameId))
