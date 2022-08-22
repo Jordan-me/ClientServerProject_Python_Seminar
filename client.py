@@ -9,9 +9,9 @@ width = 700
 height = 700
 win = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Client")
-bg = pygame.image.load("menuScreen3.jpg")
+bg = pygame.image.load("assets/menuScreen3.jpg")
 bg = pygame.transform.scale(bg, (width, height))
-bg_loading = pygame.transform.scale(pygame.image.load("waitScreen.gif"), (width, height))
+bg_loading = pygame.transform.scale(pygame.image.load("assets/waitScreen.gif"), (width, height))
 
 
 # class Button:
