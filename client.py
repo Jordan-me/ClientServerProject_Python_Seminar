@@ -1,10 +1,29 @@
+import os
+
 import pygame
+import vlc
+
 from network import Network
 from Button import Button
 import pickle
 
-pygame.font.init()
 
+def load_images_from_folder(folder):
+    images = []
+    for filename in os.listdir(folder):
+        img = pygame.image.load(os.path.join(folder, filename))
+        if img is not None:
+            images.append(img)
+    return images
+
+
+# Setup for sounds, defaults are good
+pygame.mixer.init()
+loading_sound = vlc.MediaPlayer("assets/audio/music_zapsplat_astro_race.mp3")
+loading_sound.audio_set_volume(80)
+
+pygame.font.init()
+value = 0
 width = 700
 height = 700
 win = pygame.display.set_mode((width, height))
@@ -13,21 +32,37 @@ pygame.display.set_caption("Client")
 bg = pygame.image.load("assets/menuScreen3.jpg")
 bg = pygame.transform.scale(bg, (width, height))
 bg_loading = pygame.transform.scale(pygame.image.load("assets/waitScreen.gif"), (width, height))
+bg_loading_sprite = load_images_from_folder("assets/loading_frames")
+
+
+def create_loading_animation(win, images, x=700, y=700):
+    # Setting the framerate to 3fps just
+    # to see the result properly
+    font = pygame.font.SysFont("comicsans", 30)
+    text = font.render("Waiting for Player...", 1, (0, 0, 0))
+
+    for image in images:
+        image = pygame.transform.scale(image, (x, y))
+        win.blit(image, (0, 0))
+        win.blit(text, (width / 3 - 30, height / 2 + 150))
+        pygame.display.update()
+        pygame.time.Clock().tick(50)
+
 
 def redrawWindow(win, game, p):
-    win.fill(color = (138,51,36))
+    win.fill(color=(138, 51, 36))
 
     if not (game.connected()):
-        win.blit(bg_loading, (0, 0))
-        font = pygame.font.SysFont("comicsans", 50)
-        text = font.render("Waiting for Player...", 1, (255, 0, 0), True)
-        win.blit(text, (width / 3 - 90, height / 2 + 150))
+        create_loading_animation(win, bg_loading_sprite)
+        win.blit(pygame.transform.scale(bg_loading_sprite[-1], (width, height)), (0, 0))
+
     else:
+        loading_sound.stop()
         font = pygame.font.SysFont("comicsans", 40)
-        text = font.render("Your Move", 1, (255,211,155))
+        text = font.render("Your Move", 1, (255, 211, 155))
         win.blit(text, (80, 200))
 
-        text = font.render("Opponents", 1, (255,211,155))
+        text = font.render("Opponents", 1, (255, 211, 155))
         win.blit(text, (400, 200))
 
         move1 = game.get_player_move(0)
@@ -73,6 +108,7 @@ def main():
     n = Network()
     player = int(n.getP())
     print("You are player", player)
+    loading_sound.play()
 
     while run:
         clock.tick(60)
@@ -122,6 +158,10 @@ def main():
                                 n.send(btn.text)
 
         redrawWindow(win, game, player)
+
+    pygame.mixer.music.stop()
+    loading_sound.stop()
+    pygame.mixer.quit()
 
 
 def menu_screen():
