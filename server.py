@@ -1,18 +1,26 @@
 import socket
 from _thread import *
 import pickle
-
+from server_gui import server_gui
 import pygame
 
 from game import Game
 
 server = "localhost"
 port = 5555
+connectedAccounts = {'id': []}
 
-width = 700
-height = 700
-win = pygame.display.set_mode((width, height))
-pygame.display.set_caption("Server")
+# pygame.font.init()
+start_new_thread(server_gui, (0, 0))
+# width = 700
+# height = 700
+# win = pygame.display.set_mode((width, height))
+# pygame.display.set_caption("Server")
+# win.blit("asd", (400, 350))
+# pygame.display.update()
+
+# while True:
+#     pygame.display.update()
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -28,6 +36,8 @@ connected = set()
 games = {}
 idCount = 0
 
+
+# def server_gui():
 
 def threaded_client(conn, p, gameId):
     global idCount
@@ -65,22 +75,27 @@ def threaded_client(conn, p, gameId):
     conn.close()
 
 
-
 while True:
-    pygame.display.update()
 
+    # pygame.display.update()
+
+    # test()
     conn, addr = s.accept()
+    # start_new_thread(test, (conn, 0, 1))
+    connectedAccounts['id'].append(addr)
     print("Connected to:", addr)
-
+    print(connectedAccounts)
     idCount += 1
     p = 0
-    gameId = (idCount - 1)//2
+    gameId = (idCount - 1) // 2
     if idCount % 2 == 1:
         games[gameId] = Game(gameId)
         print("Creating a new game...")
+        server_gui.setPlayers(connectedAccounts['id'][0], 0)
     else:
+        # here we know we have two players
+        server_gui.setPlayers(connectedAccounts['id'][0], connectedAccounts['id'][1])
         games[gameId].ready = True
         p = 1
-
 
     start_new_thread(threaded_client, (conn, p, gameId))
