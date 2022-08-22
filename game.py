@@ -5,7 +5,7 @@ class Game:
         self.ready = False
         self.id = id
         self.moves = [None, None]
-        self.wins = [0,0]
+        self.wins = [0, 0]
         self.ties = 0
 
     def get_player_move(self, p):
@@ -47,6 +47,7 @@ class Game:
         elif p1 == "P" and p2 == "S":
             winner = 1
 
+        self.wins[winner] += 1
         return winner
 
     def resetWent(self):
