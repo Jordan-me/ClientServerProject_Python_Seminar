@@ -35,16 +35,18 @@ bg_loading = pygame.transform.scale(pygame.image.load("assets/waitScreen.gif"), 
 bg_loading_sprite = load_images_from_folder("assets/loading_frames")
 
 
-def create_loading_animation(win, images, x=700, y=700):
+def create_loading_animation(win, images,text = None, x=700, y=700):
     # Setting the framerate to 3fps just
     # to see the result properly
-    font = pygame.font.SysFont("comicsans", 30)
-    text = font.render("Waiting for Player...", 1, (0, 0, 0))
+    if text is not None:
+        font = pygame.font.SysFont("comicsans", 30)
+        text = font.render(text, 1, (0, 0, 0))
 
     for image in images:
         image = pygame.transform.scale(image, (x, y))
         win.blit(image, (0, 0))
-        win.blit(text, (width / 3 - 30, height / 2 + 150))
+        if text is not None:
+            win.blit(text, (width / 3 - 30, height / 2 + 150))
         pygame.display.update()
         pygame.time.Clock().tick(50)
 
@@ -53,7 +55,7 @@ def redrawWindow(win, game, p):
     win.fill(color=(138, 51, 36))
 
     if not (game.connected()):
-        create_loading_animation(win, bg_loading_sprite)
+        create_loading_animation(win, bg_loading_sprite,text="Waiting for Player...")
         win.blit(pygame.transform.scale(bg_loading_sprite[-1], (width, height)), (0, 0))
 
     else:
