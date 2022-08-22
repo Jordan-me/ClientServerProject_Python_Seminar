@@ -1,10 +1,18 @@
 import socket
 from _thread import *
 import pickle
+
+import pygame
+
 from game import Game
 
 server = "localhost"
 port = 5555
+
+width = 700
+height = 700
+win = pygame.display.set_mode((width, height))
+pygame.display.set_caption("Server")
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -59,6 +67,8 @@ def threaded_client(conn, p, gameId):
 
 
 while True:
+    pygame.display.update()
+
     conn, addr = s.accept()
     print("Connected to:", addr)
 
