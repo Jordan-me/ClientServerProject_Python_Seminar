@@ -11,7 +11,7 @@ port = 5555
 connectedAccounts = {'id': []}
 
 # pygame.font.init()
-start_new_thread(server_gui, (0, 0))
+start_new_thread(server_gui, (0, 0, 0))
 # width = 700
 # height = 700
 # win = pygame.display.set_mode((width, height))
@@ -88,13 +88,17 @@ while True:
     idCount += 1
     p = 0
     gameId = (idCount - 1) // 2
+    print("gameid: " + str(gameId))
+
     if idCount % 2 == 1:
+        print("gameid: " +str(gameId))
         games[gameId] = Game(gameId)
-        print("Creating a new game...")
-        server_gui.setPlayers(connectedAccounts['id'][0], 0)
+        print("Creating a new game..." + str(gameId))
+        server_gui.setPlayers(connectedAccounts['id'][idCount - 1], 0, gameId)
     else:
         # here we know we have two players
-        server_gui.setPlayers(connectedAccounts['id'][0], connectedAccounts['id'][1])
+        print("id count: " +str(idCount))
+        server_gui.setPlayers(connectedAccounts['id'][idCount - 2], connectedAccounts['id'][idCount-1], gameId)
         games[gameId].ready = True
         p = 1
 

@@ -16,7 +16,10 @@ class Network:
     def connect(self):
         try:
             self.client.connect(self.addr)
-            return self.client.recv(2048).decode()
+            a = self.client.recv(2048).decode()
+            print(a+"asd")
+
+            return a
         except:
             pass
 
