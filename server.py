@@ -42,7 +42,7 @@ idCount = 0
 def threaded_client(conn, p, gameId):
     global idCount
     conn.send(str.encode(str(p)))
-
+    server_gui.set_gui_con(conn, gameId)
     reply = ""
     while True:
         try:
@@ -94,11 +94,12 @@ while True:
         print("gameid: " +str(gameId))
         games[gameId] = Game(gameId)
         print("Creating a new game..." + str(gameId))
-        server_gui.setPlayers(connectedAccounts['id'][idCount - 1], 0, gameId)
+        server_gui.set_players(connectedAccounts['id'][idCount - 1], 0, gameId, conn)
     else:
         # here we know we have two players
         print("id count: " +str(idCount))
-        server_gui.setPlayers(connectedAccounts['id'][idCount - 2], connectedAccounts['id'][idCount-1], gameId)
+
+        server_gui.set_players(connectedAccounts['id'][idCount - 2], connectedAccounts['id'][idCount-1], gameId, conn)
         games[gameId].ready = True
         p = 1
 

@@ -1,3 +1,4 @@
+import time
 
 import PySimpleGUI as sg
 import webbrowser
@@ -38,15 +39,16 @@ layout = []
 #
 # event, values = window.read()
 # window.close()
-def new_layout(i):
-    return [[sg.T("Question: "), sg.Button(key=("-q-", i)), sg.T("Answer"), sg.InputText(key=("-ans-", i))]]
+# def new_layout(i):
+#     return [[sg.T("Question: "), sg.Button(key=("-q-", i)), sg.T("Answer"), sg.InputText(key=("-ans-", i))]]
+
 
 def delete_game_button(p1, p2, gameId):
     # (
     #         "Game " + str(gameId) + ":\tplayer 1 : " + str(game_details[0]) + " vs player 2 : " + str(
     #     game_details[1]) + "     \n")
-    return [[sg.Text("Game " + str(gameId) + ":\tplayer 1 : " + str(p1) + " vs player 2 : " + str(p2)),
-             sg.Button("Stop game", key="db")]]
+    return [[sg.Text("Game " + str(gameId) + ":\tplayer 1 : " + str(p1) + " vs player 2 : " + str(p2), key="txt"),
+             sg.Button("Stop game", key="db" + str(gameId))]]
 
 
 def get_games_str(games):
@@ -60,6 +62,7 @@ class server_gui():
     def __init__(self, player1_id, player2_id, gameId):
         server_gui.player1_id = player1_id
         server_gui.player2_id = player2_id
+        server_gui.connections = []
         server_gui.gameIds = {}
         server_gui.games = []
 
@@ -68,7 +71,8 @@ class server_gui():
             [sg.Text('Player 1 :'), sg.Text(server_gui.player1_id, key='p1_id', visible=True)],
             [sg.Text('Player 2 :'), sg.Text(server_gui.player2_id, key='p2_id', visible=True)],
             [sg.Text('Games Played :'), sg.Text(0, key='games_played', visible=True)],
-            [sg.Button('Exit', key="q", button_color=('white', 'firebrick3'))]
+            [sg.Button('Quit all games', key="quit", button_color=('white', 'firebrick3'))],
+            [sg.Button('Close', key="close", button_color=('black', 'firebrick3'))]
 
         ]
 
@@ -77,26 +81,46 @@ class server_gui():
 
         while True:
             event, values = server_gui.window.read()
-            if event == sg.WIN_CLOSED or event == 'Close':
+            if event == 'quit' or event == sg.WIN_CLOSED or event == 'close':
+                print(type(server_gui.connections))
+                for connObj in server_gui.connections:
+                    print(connObj)
+                    self.stop_game(connObj["conn"], connObj["gameId"])
                 break
-            elif event == 'q':
-                server_gui.window.extend_layout(server_gui.window['games_played'], new_layout("delete"))
+            elif 'db' in event:
+                sg.one_line_progress_meter(title="Loading...", current_value=0, max_value=10, no_button=False)
+                key = 'OK for 1 meter'
+                meter = sg.QuickMeter.active_meters[key]
+                meter.window.DisableClose = False
+
+                for i in range(1, 10):
+                    time.sleep(0.1)
+                    if not sg.one_line_progress_meter(title="Loading...", current_value=i, max_value=10,
+                                                      no_button=False):
+                        print('returned false')
+                        break
+
+                sg.one_line_progress_meter_cancel()
+                self.stop_game(server_gui.conn, event.split("db")[1])
+                # server_gui.window.extend_layout(server_gui.window['games_played'], sg.one_line_progress_meter(title="Loading..."))
         server_gui.window.close()
 
-        # b = open(f"{values['-fd-']}/start.bat", 'w')
-        # mr = [f"java -Xmx{values[0]}M -Xms{values[1]}M -jar {values[2]} nogui\n", "pause"]
-        # b.writelines(mr)
-        # b.close()
+    def set_gui_con(conn, gameId):
+        server_gui.conn = conn
 
-        # e = open(f"{values['-fd-']}/eula.txt", "w")
-        # e.write(f"eula={values['-ae-']}")
+    def stop_game(self, conn, gameId):
+        print("BEFORE: " + str(server_gui.gameIds))
+        conn.close()
+        if server_gui.gameIds:
+            del server_gui.gameIds[int(gameId)]
+        # server_gui.window['txt'].Update("")
+        server_gui.window['db' + str(gameId)].Update("deleted", disabled=True)
+        # server_gui.window.extend_layout(server_gui.window['games_played'],
+        #                                 delete_game_button("", "", gameId))
 
-        # e.close()
+        print("after: " + str(server_gui.gameIds))
 
-        # if values['-wb-']:
-        #     webbrowser.open("readme.txt")
-
-    def setPlayers(id1, id2, gameId):
+    def set_players(id1, id2, gameId, conn):
         print("setting new window", server_gui.window.layout)
         server_gui.gameIds[gameId] = [id1, id2]
 
@@ -110,8 +134,10 @@ class server_gui():
         server_gui.window['p1_id'].Update(server_gui.player1_id)
         server_gui.window['p2_id'].Update(server_gui.player2_id)
         if id1 != 0 and id2 != 0:
+            server_gui.connections.append({"gameId": gameId, "conn": conn})
             game_details = server_gui.gameIds[gameId]
-            server_gui.window.extend_layout(server_gui.window['games_played'], delete_game_button(game_details[0], game_details[1], gameId))
+            server_gui.window.extend_layout(server_gui.window['games_played'],
+                                            delete_game_button(game_details[0], game_details[1], gameId))
             # server_gui.games.append(
             #     "Game " + str(gameId) + ":\tplayer 1 : " + str(game_details[0]) + " vs player 2 : " + str(
             #         game_details[1]) + "     \n")
