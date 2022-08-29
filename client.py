@@ -3,10 +3,18 @@ import os
 import pygame
 import vlc
 
+from InputBox import InputBox
 from network import Network
 from Button import Button
 import pickle
 
+your_name = ""
+opponent_name = ""
+your_choice = ""
+opponent_choice = ""
+TOTAL_NO_OF_ROUNDS = 5
+your_score = 0
+opponent_score = 0
 
 def load_images_from_folder(folder):
     images = []
@@ -109,6 +117,7 @@ def main():
     clock = pygame.time.Clock()
     n = Network()
     player = int(n.getP())
+
     print("You are player", player)
     loading_sound.play()
 
@@ -170,26 +179,36 @@ def menu_screen():
     run = True
     clock = pygame.time.Clock()
     start_btn = Button('Start', 200, 40, (width / 2 - 100, height / 2 + 150), 5)
+    input_box = InputBox(100, 55, 140, 32)
+    font = pygame.font.SysFont("comicsans", 24)
+    msg_text = "Enter Your Name!"
     # Opening screen
     while run:
         clock.tick(60)
         win.fill((128, 128, 128))
 
-        # font = pygame.font.SysFont("comicsans", 60)
-        # text = font.render("Click to Play!", 1, (255, 0, 0))
+        label_name = font.render("Name:", 1, (0, 0, 0))
         # INSIDE OF THE GAME LOOP
         win.blit(bg, (0, 0))
         start_btn.draw(win)
-        # win.blit(text, (width/3 - 50, height/2 + 150))
-
-        pygame.display.update()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 run = False
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            input_box.handle_event(event)
+            if start_btn.pressed and input_box.text == '':
+                input_box.update_error()
+                print("Enter Name!")
+            if start_btn.pressed and input_box.text != '' :
                 run = False
+
+        win.blit(label_name, (10, 50))
+        input_box.update()
+        input_box.draw(win)
+        pygame.display.update()
+
+
 
     main()
 

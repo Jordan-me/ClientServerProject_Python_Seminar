@@ -40,6 +40,7 @@ idCount = 0
 # def server_gui():
 
 def threaded_client(conn, p, gameId):
+
     global idCount
     conn.send(str.encode(str(p)))
     server_gui.set_gui_con(conn, gameId)
