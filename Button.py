@@ -1,8 +1,10 @@
 import pygame
+import vlc
 
 
 class Button:
-    def __init__(self, text, width, height, pos, elevation, top_color='#475F77', bottom_color='#354B5E'):
+    def __init__(self, text, width, height, pos, elevation, audio=None, image=None, top_color='#475F77',
+                 bottom_color='#354B5E'):
         # Core attributes
         self.gui_font = pygame.font.Font(None, 30)
         self.pressed = False
@@ -13,6 +15,8 @@ class Button:
         self.width = width
         self.height = height
         self.text = text
+        self.image = image
+        self.audio = audio
 
         # top rectangle
         self.top_rect = pygame.Rect(pos, (width, height))
@@ -35,7 +39,10 @@ class Button:
 
         pygame.draw.rect(screen, self.bottom_color, self.bottom_rect, border_radius=150)
         pygame.draw.rect(screen, self.top_color, self.top_rect, border_radius=150)
-        screen.blit(self.text_surf, self.text_rect)
+        if self.image is None:
+            screen.blit(self.text_surf, self.text_rect)
+        else:
+            screen.blit(self.image, (self.original_x_pos, self.original_y_pos))
         self.check_click()
 
     def check_click(self, top_color='#D9933A', top_color2='#475F77'):
@@ -58,6 +65,8 @@ class Button:
         x1 = pos[0]
         y1 = pos[1]
         if self.original_x_pos <= x1 <= self.original_x_pos + self.width and self.original_y_pos <= y1 <= self.original_y_pos + self.height:
+            vlc.libvlc_media_player_set_position(self.audio, 0.0)
+            self.audio.play()
             return True
         else:
             return False

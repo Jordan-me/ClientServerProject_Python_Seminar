@@ -30,6 +30,13 @@ def load_images_from_folder(folder):
 pygame.mixer.init()
 loading_sound = vlc.MediaPlayer("assets/audio/music_zapsplat_astro_race.mp3")
 loading_sound.audio_set_volume(80)
+# sounds effect
+rock_sound = vlc.MediaPlayer("assets/audio/rocks_sound.mp3")
+rock_sound.audio_set_volume(80)
+paper_sound = vlc.MediaPlayer("assets/audio/paper_sound.mp3")
+paper_sound.audio_set_volume(110)
+scissors_sound = vlc.MediaPlayer("assets/audio/scissors_sound.mp3")
+scissors_sound.audio_set_volume(80)
 
 pygame.font.init()
 value = 0
@@ -42,6 +49,16 @@ bg = pygame.image.load("assets/menuScreen3.jpg")
 bg = pygame.transform.scale(bg, (width, height))
 bg_loading = pygame.transform.scale(pygame.image.load("assets/waitScreen.gif"), (width, height))
 bg_loading_sprite = load_images_from_folder("assets/loading_frames")
+banner_image = pygame.image.load("assets/Banner_Title.png")
+banner_image = pygame.transform.scale(banner_image, (width, 150))
+# crowns
+# opponent_winner_crown = pygame.image.load("assets/opponent_crown.png")
+winner_crown = pygame.image.load("assets/winner_crown.png")
+loser_crown = pygame.image.load("assets/loser_crown.png")
+# rps images
+rock = pygame.image.load("assets/rock.png")
+paper = pygame.image.load("assets/paper.png")
+scissors = pygame.image.load("assets/scissors.png")
 
 
 def create_loading_animation(win, images, text=None, x=700, y=700):
@@ -61,7 +78,7 @@ def create_loading_animation(win, images, text=None, x=700, y=700):
 
 
 def redrawWindow(win, game, p):
-    win.fill(color=(138, 51, 36))
+    win.fill(color=(135, 206, 255))
     if not (game.connected()):
         create_loading_animation(win, bg_loading_sprite, text="Waiting for Player...")
         win.blit(pygame.transform.scale(bg_loading_sprite[-1], (width, height)), (0, 0))
@@ -69,21 +86,25 @@ def redrawWindow(win, game, p):
     else:
         # stop waiting sound
         loading_sound.stop()
-
+        op = 0 if p == 1 else 1
         # names & scores
-        font_names = pygame.font.SysFont("comicsans", 28)
+        win.blit(banner_image, (0, -20))
+        font_names = pygame.font.SysFont("comicsans", 48)
         text_name = font_names.render(your_name + ':  ' + str(game.wins[p]), 1, (0, 0, 0))
-        win.blit(text_name, (20, 50))
-        text_opp_name = font_names.render(opponent_name + ':  ' + str(game.wins[0 if p == 1 else 1]), 1, (0, 0, 0))
-        win.blit(text_opp_name, (width - 250, 50))
+        win.blit(text_name, (70, 150))
+        text_opp_name = font_names.render(opponent_name + ':  ' + str(game.wins[op]), 1, (0, 0, 0))
+        win.blit(text_opp_name, (width - 280, 150))
+
+        if not game.isTie(p, op):
+            if game.isWinner(p, op):
+                win.blit(winner_crown, (25, 75))
+                win.blit(loser_crown, (width - 275, 125))
+
+            else:
+                win.blit(loser_crown, (50, 125))
+                win.blit(winner_crown, (width - 318, 75))
 
         font = pygame.font.SysFont("comicsans", 40)
-        text = font.render("Your Move", 1, (255, 211, 155))
-        win.blit(text, (80, 200))
-
-        text = font.render("Opponents", 1, (255, 211, 155))
-        win.blit(text, (400, 200))
-
         move1 = game.get_player_move(0)
         move2 = game.get_player_move(1)
         if game.bothWent():
@@ -117,8 +138,9 @@ def redrawWindow(win, game, p):
     pygame.display.update()
 
 
-btns = [Button("Rock", 150, 150, (50, 500), 5), Button("Scissors", 150, 150, (250, 500), 5),
-        Button("Paper", 150, 150, (450, 500), 5)]
+btns = [Button("Rock", 150, 150, (50, 500), 5, audio=rock_sound, image=rock),
+        Button("Scissors", 150, 150, (250, 500), 5, audio=scissors_sound, image=scissors),
+        Button("Paper", 150, 150, (450, 500), 5, audio=paper_sound, image=paper)]
 
 
 def main():
@@ -145,8 +167,7 @@ def main():
             break
         opponent_name = game.p1Name if player == 1 else game.p2Name
         if game.bothWent():
-
-            redrawWindow(win, game, player)
+            # redrawWindow(win, game, player)
             pygame.time.delay(500)
             try:
                 game = n.send("reset")
@@ -158,11 +179,11 @@ def main():
             font = pygame.font.SysFont("comicsans", 90)
             if (game.winner() == 1 and player == 1) or (game.winner() == 0 and player == 0):
                 text = font.render("You Won!", 1, (255, 0, 0))
+                n.send("W" + str(player))
             elif game.winner() == -1:
                 text = font.render("Tie Game!", 1, (255, 0, 0))
             else:
                 text = font.render("You Lost...", 1, (255, 0, 0))
-
             win.blit(text, (width / 2 - text.get_width() / 2, height / 2 - text.get_height() / 2))
             pygame.display.update()
             pygame.time.delay(2000)
@@ -175,6 +196,7 @@ def main():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
                 for btn in btns:
+                    btn.audio.stop()
                     if btn.click(pos) and game.connected():
                         if player == 0:
                             if not game.p1Went:

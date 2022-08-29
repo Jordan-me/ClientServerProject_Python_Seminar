@@ -57,8 +57,10 @@ def threaded_client(conn, p, gameId):
                 else:
                     if data == "reset":
                         game.resetWent()
-                    elif data[0] == 'N':
+                    elif data[0] == 'N': # Names
                         game.set_name(data[1:], p)
+                    elif data[0] == 'W': #Winner
+                        game.wins[int(data[1:])] += 1
                     elif data != "get":
                         game.play(p, data)
 

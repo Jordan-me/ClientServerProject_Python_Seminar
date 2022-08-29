@@ -56,8 +56,15 @@ class Game:
         elif p1 == "P" and p2 == "S":
             winner = 1
 
-        self.wins[winner] += 1
+        # if winner != -1:
+        #     self.wins[winner] += 1
         return winner
+
+    def isTie(self, p, op):
+        return self.wins[p] == self.wins[op]
+
+    def isWinner(self, p, op):
+        return self.wins[p] > self.wins[op]
 
     def resetWent(self):
         self.p1Went = False
