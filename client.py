@@ -16,6 +16,7 @@ TOTAL_NO_OF_ROUNDS = 5
 your_score = 0
 opponent_score = 0
 
+
 def load_images_from_folder(folder):
     images = []
     for filename in os.listdir(folder):
@@ -43,7 +44,7 @@ bg_loading = pygame.transform.scale(pygame.image.load("assets/waitScreen.gif"), 
 bg_loading_sprite = load_images_from_folder("assets/loading_frames")
 
 
-def create_loading_animation(win, images,text = None, x=700, y=700):
+def create_loading_animation(win, images, text=None, x=700, y=700):
     # Setting the framerate to 3fps just
     # to see the result properly
     if text is not None:
@@ -61,13 +62,21 @@ def create_loading_animation(win, images,text = None, x=700, y=700):
 
 def redrawWindow(win, game, p):
     win.fill(color=(138, 51, 36))
-
     if not (game.connected()):
-        create_loading_animation(win, bg_loading_sprite,text="Waiting for Player...")
+        create_loading_animation(win, bg_loading_sprite, text="Waiting for Player...")
         win.blit(pygame.transform.scale(bg_loading_sprite[-1], (width, height)), (0, 0))
 
     else:
+        # stop waiting sound
         loading_sound.stop()
+
+        # names & scores
+        font_names = pygame.font.SysFont("comicsans", 28)
+        text_name = font_names.render(your_name + ':  ' + str(game.wins[p]), 1, (0, 0, 0))
+        win.blit(text_name, (20, 50))
+        text_opp_name = font_names.render(opponent_name + ':  ' + str(game.wins[0 if p == 1 else 1]), 1, (0, 0, 0))
+        win.blit(text_opp_name, (width - 250, 50))
+
         font = pygame.font.SysFont("comicsans", 40)
         text = font.render("Your Move", 1, (255, 211, 155))
         win.blit(text, (80, 200))
@@ -113,10 +122,15 @@ btns = [Button("Rock", 150, 150, (50, 500), 5), Button("Scissors", 150, 150, (25
 
 
 def main():
+    global opponent_name
     run = True
     clock = pygame.time.Clock()
     n = Network()
     player = int(n.getP())
+    try:
+        game = n.send("N" + your_name)
+    except:
+        print("Couldn't get game")
 
     print("You are player", player)
     loading_sound.play()
@@ -129,8 +143,9 @@ def main():
             run = False
             print("Couldn't get game")
             break
-
+        opponent_name = game.p1Name if player == 1 else game.p2Name
         if game.bothWent():
+
             redrawWindow(win, game, player)
             pygame.time.delay(500)
             try:
@@ -176,6 +191,7 @@ def main():
 
 
 def menu_screen():
+    global your_name
     run = True
     clock = pygame.time.Clock()
     start_btn = Button('Start', 200, 40, (width / 2 - 100, height / 2 + 150), 5)
@@ -200,15 +216,14 @@ def menu_screen():
             if start_btn.pressed and input_box.text == '':
                 input_box.update_error()
                 print("Enter Name!")
-            if start_btn.pressed and input_box.text != '' :
+            if start_btn.pressed and input_box.text != '':
+                your_name = input_box.text
                 run = False
 
         win.blit(label_name, (10, 50))
         input_box.update()
         input_box.draw(win)
         pygame.display.update()
-
-
 
     main()
 

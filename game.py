@@ -2,12 +2,13 @@ class Game:
     def __init__(self, id):
         self.p1Went = False
         self.p2Went = False
+        self.p1Name = ''
+        self.p2Name = ''
         self.ready = False
         self.id = id
         self.moves = [None, None]
         self.wins = [0, 0]
         self.ties = 0
-
 
     def get_player_move(self, p):
         """
@@ -16,9 +17,16 @@ class Game:
         """
         return self.moves[p]
 
+    def set_name(self, name, p):
+        if p == 0:
+            self.p1Name = name
+        else:
+            self.p2Name = name
+
     def play(self, player, move):
         self.moves[player] = move
         if player == 0:
+
             self.p1Went = True
         else:
             self.p2Went = True
