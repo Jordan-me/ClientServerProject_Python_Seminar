@@ -52,8 +52,9 @@ banner_image = pygame.transform.scale(banner_image, (width, 150))
 lock_image = pygame.image.load("assets/lock.png")
 lock_image = pygame.transform.scale(lock_image, (150, 150))
 lose_win_sprite = {"win": {"anim": [Animation("assets/win/sparkle_frames")],
-                           "images": [pygame.transform.scale(pygame.image.load("assets/win/congrats.png"),(width-100, 150)),
-                                      pygame.transform.scale(pygame.image.load("assets/win/cup.png"),(width-200, 200))],
+                           "images": [
+                               pygame.transform.scale(pygame.image.load("assets/win/congrats.png"), (width - 100, 150)),
+                               pygame.transform.scale(pygame.image.load("assets/win/cup.png"), (width - 200, 200))],
                            "sound": win_sound
                            },
                    "lose": {"anim": [Animation("assets/lose/loser_frames")],
@@ -75,7 +76,7 @@ def get_btn(move):
             return btn
 
 
-def winner_lose_window(window,mode = "win",pos_sign = (50, 150),pos2 = (90, 350),pos_anim = (0,0),scale = (700,700)):
+def winner_lose_window(window, mode="win", pos_sign=(50, 150), pos2=(90, 350), pos_anim=(0, 0), scale=(700, 700)):
     timer = Timer(5)
     played = False
     while timer.check_timer():
@@ -88,10 +89,6 @@ def winner_lose_window(window,mode = "win",pos_sign = (50, 150),pos2 = (90, 350)
         pygame.display.update()
         lose_win_sprite[mode]["anim"][0].create_loading_animation(window, width, height, delay=20, x_scale=scale[0],
                                                                   y_scale=scale[1], pos=pos_anim)
-
-        # if not played or mode == "lose":
-        #     lose_win_sprite[mode]["anim"][0].create_loading_animation(window,width,height,delay=20,x_scale=scale[0],y_scale=scale[1],pos = pos_anim)
-        #     played = True
 
     lose_win_sprite[mode]["sound"].stop()
 
@@ -204,7 +201,8 @@ def main():
 
             font = pygame.font.SysFont("comicsans", 90)
             if (game.winner() == 1 and player == 1) or (game.winner() == 0 and player == 0):
-                winner_lose_window(win,mode = "win",pos_sign = (50, 150),pos2 = (90, 350),pos_anim = (0,0),scale = (700,700))
+                winner_lose_window(win, mode="win", pos_sign=(50, 150), pos2=(90, 350), pos_anim=(0, 0),
+                                   scale=(700, 700))
                 text = font.render("You Won!", 1, (255, 0, 0))
                 n.send("W" + str(player))
             elif game.winner() == -1:
@@ -213,9 +211,8 @@ def main():
                 pygame.display.update()
                 pygame.time.delay(2000)
             else:
-                winner_lose_window(win,mode = "lose",pos_sign = (40, 150),pos_anim = (250, 350),scale = (180,180))
+                winner_lose_window(win, mode="lose", pos_sign=(40, 150), pos_anim=(250, 350), scale=(180, 180))
                 text = font.render("You Lost...", 1, (255, 0, 0))
-
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -279,5 +276,9 @@ def menu_screen():
     main()
 
 
-while True:
-    menu_screen()
+def run_client():
+    while True:
+        menu_screen()
+
+
+run_client()
