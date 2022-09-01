@@ -1,30 +1,23 @@
 import os
+import random
 
 import pygame
 import vlc
+from pygame import time
 
 from InputBox import InputBox
 from network import Network
 from Button import Button
+from animation import Animation
+from timer import Timer
 import pickle
 
 your_name = ""
 opponent_name = ""
 your_choice = ""
 opponent_choice = ""
-TOTAL_NO_OF_ROUNDS = 5
 your_score = 0
 opponent_score = 0
-
-
-def load_images_from_folder(folder):
-    images = []
-    for filename in os.listdir(folder):
-        img = pygame.image.load(os.path.join(folder, filename))
-        if img is not None:
-            images.append(img)
-    return images
-
 
 # Setup for sounds, defaults are good
 pygame.mixer.init()
@@ -45,14 +38,17 @@ height = 700
 win = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Client")
 
+# images
 bg = pygame.image.load("assets/menuScreen3.jpg")
 bg = pygame.transform.scale(bg, (width, height))
 bg_loading = pygame.transform.scale(pygame.image.load("assets/waitScreen.gif"), (width, height))
-bg_loading_sprite = load_images_from_folder("assets/loading_frames")
+bg_loading_sprite = Animation("assets/loading_frames")
 banner_image = pygame.image.load("assets/Banner_Title.png")
 banner_image = pygame.transform.scale(banner_image, (width, 150))
+lock_image = pygame.image.load("assets/lock.png")
+lock_image = pygame.transform.scale(lock_image, (150, 150))
+
 # crowns
-# opponent_winner_crown = pygame.image.load("assets/opponent_crown.png")
 winner_crown = pygame.image.load("assets/winner_crown.png")
 loser_crown = pygame.image.load("assets/loser_crown.png")
 # rps images
@@ -61,79 +57,84 @@ paper = pygame.image.load("assets/paper.png")
 scissors = pygame.image.load("assets/scissors.png")
 
 
-def create_loading_animation(win, images, text=None, x=700, y=700):
-    # Setting the framerate to 3fps just
-    # to see the result properly
-    if text is not None:
-        font = pygame.font.SysFont("comicsans", 30)
-        text = font.render(text, 1, (0, 0, 0))
-
-    for image in images:
-        image = pygame.transform.scale(image, (x, y))
-        win.blit(image, (0, 0))
-        if text is not None:
-            win.blit(text, (width / 3 - 30, height / 2 + 150))
-        pygame.display.update()
-        pygame.time.Clock().tick(50)
+def get_btn(move):
+    for btn in btns:
+        if move == btn.text:
+            return btn
 
 
-def redrawWindow(win, game, p):
-    win.fill(color=(135, 206, 255))
+def winner_window(window, game, p):
+    window.fill(color=(135, 206, 255))
+
+
+def loser_window(window, game, p):
+    window.fill(color=(135, 206, 255))
+
+
+def redrawWindow(window, game, p):
+    window.fill(color=(135, 206, 255))
     if not (game.connected()):
-        create_loading_animation(win, bg_loading_sprite, text="Waiting for Player...")
-        win.blit(pygame.transform.scale(bg_loading_sprite[-1], (width, height)), (0, 0))
+        bg_loading_sprite.create_loading_animation(window, width, height, text="Waiting for Player...")
+        window.blit(pygame.transform.scale(bg_loading_sprite.images[-1], (width, height)), (0, 0))
 
     else:
         # stop waiting sound
         loading_sound.stop()
         op = 0 if p == 1 else 1
         # names & scores
-        win.blit(banner_image, (0, -20))
+        window.blit(banner_image, (0, -20))
         font_names = pygame.font.SysFont("comicsans", 48)
         text_name = font_names.render(your_name + ':  ' + str(game.wins[p]), 1, (0, 0, 0))
-        win.blit(text_name, (70, 150))
+        window.blit(text_name, (70, 150))
         text_opp_name = font_names.render(opponent_name + ':  ' + str(game.wins[op]), 1, (0, 0, 0))
-        win.blit(text_opp_name, (width - 280, 150))
+        window.blit(text_opp_name, (width - 280, 150))
 
         if not game.isTie(p, op):
             if game.isWinner(p, op):
-                win.blit(winner_crown, (25, 75))
-                win.blit(loser_crown, (width - 275, 125))
+                window.blit(winner_crown, (25, 75))
+                window.blit(loser_crown, (width - 275, 125))
 
             else:
-                win.blit(loser_crown, (50, 125))
-                win.blit(winner_crown, (width - 318, 75))
+                window.blit(loser_crown, (50, 125))
+                window.blit(winner_crown, (width - 318, 75))
 
         font = pygame.font.SysFont("comicsans", 40)
         move1 = game.get_player_move(0)
         move2 = game.get_player_move(1)
         if game.bothWent():
-            text1 = font.render(move1, 1, (0, 0, 0))
-            text2 = font.render(move2, 1, (0, 0, 0))
+            print("I got the moves : ", move1, move2)
+            text1 = get_btn(move1).image
+            text2 = get_btn(move2).image
         else:
-            if game.p1Went and p == 0:
-                text1 = font.render(move1, 1, (0, 0, 0))
-            elif game.p1Went:
-                text1 = font.render("Locked In", 1, (0, 0, 0))
+            if game.p1Went and p == 0:  # p = 0 and he chose
+                # do animation of the move
+                text1 = get_btn(move1).image
+
+            elif game.p1Went:  # p = 1 and p = 0 chose
+                # show animation of wondering
+                # text1 = font.render("Locked In", 1, (0, 0, 0))
+                text1 = lock_image
             else:
                 text1 = font.render("Waiting...", 1, (0, 0, 0))
 
             if game.p2Went and p == 1:
-                text2 = font.render(move2, 1, (0, 0, 0))
+                # do animation of the move
+                text2 = get_btn(move2).image
             elif game.p2Went:
-                text2 = font.render("Locked In", 1, (0, 0, 0))
+                # text2 = font.render("Locked In", 1, (0, 0, 0))
+                text2 = lock_image
             else:
                 text2 = font.render("Waiting...", 1, (0, 0, 0))
 
         if p == 1:
-            win.blit(text2, (100, 350))
-            win.blit(text1, (400, 350))
+            window.blit(text2, (100, 250))
+            window.blit(text1, (400, 250))
         else:
-            win.blit(text1, (100, 350))
-            win.blit(text2, (420, 350))
+            window.blit(text1, (100, 250))
+            window.blit(text2, (420, 250))
 
         for btn in btns:
-            btn.draw(win)
+            btn.draw(window)
 
     pygame.display.update()
 
@@ -167,7 +168,7 @@ def main():
             break
         opponent_name = game.p1Name if player == 1 else game.p2Name
         if game.bothWent():
-            # redrawWindow(win, game, player)
+            redrawWindow(win, game, player)
             pygame.time.delay(500)
             try:
                 game = n.send("reset")
