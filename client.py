@@ -35,12 +35,10 @@ win_sound.audio_set_volume(80)
 lose_sound = vlc.MediaPlayer("assets/audio/lose_sound.mp3")
 lose_sound.audio_set_volume(80)
 
-pygame.font.init()
 value = 0
 width = 700
 height = 700
-win = pygame.display.set_mode((width, height))
-pygame.display.set_caption("Client")
+
 
 # images
 bg = pygame.image.load("assets/menuScreen3.jpg")
@@ -51,6 +49,7 @@ banner_image = pygame.image.load("assets/Banner_Title.png")
 banner_image = pygame.transform.scale(banner_image, (width, 150))
 lock_image = pygame.image.load("assets/lock.png")
 lock_image = pygame.transform.scale(lock_image, (150, 150))
+wait_sprite = Animation("assets/waiting_frames")
 lose_win_sprite = {"win": {"anim": [Animation("assets/win/sparkle_frames")],
                            "images": [
                                pygame.transform.scale(pygame.image.load("assets/win/congrats.png"), (width - 100, 150)),
@@ -68,7 +67,9 @@ loser_crown = pygame.image.load("assets/loser_crown.png")
 rock = pygame.image.load("assets/rock.png")
 paper = pygame.image.load("assets/paper.png")
 scissors = pygame.image.load("assets/scissors.png")
-
+btns = [Button("Rock", 150, 150, (50, 500), 5, audio=rock_sound, image=rock),
+        Button("Scissors", 150, 150, (250, 500), 5, audio=scissors_sound, image=scissors),
+        Button("Paper", 150, 150, (450, 500), 5, audio=paper_sound, image=paper)]
 
 def get_btn(move):
     for btn in btns:
@@ -137,6 +138,7 @@ def redrawWindow(window, game, p):
                 # text1 = font.render("Locked In", 1, (0, 0, 0))
                 text1 = lock_image
             else:
+
                 text1 = font.render("Waiting...", 1, (0, 0, 0))
 
             if game.p2Went and p == 1:
@@ -160,13 +162,7 @@ def redrawWindow(window, game, p):
 
     pygame.display.update()
 
-
-btns = [Button("Rock", 150, 150, (50, 500), 5, audio=rock_sound, image=rock),
-        Button("Scissors", 150, 150, (250, 500), 5, audio=scissors_sound, image=scissors),
-        Button("Paper", 150, 150, (450, 500), 5, audio=paper_sound, image=paper)]
-
-
-def main():
+def main(win):
     global opponent_name
     run = True
     clock = pygame.time.Clock()
@@ -238,7 +234,7 @@ def main():
     pygame.mixer.quit()
 
 
-def menu_screen():
+def menu_screen(win):
     global your_name
     run = True
     clock = pygame.time.Clock()
@@ -273,12 +269,21 @@ def menu_screen():
         input_box.draw(win)
         pygame.display.update()
 
-    main()
+    main(win)
 
 
 def run_client():
+    pygame.font.init()
+    win = pygame.display.set_mode((width, height))
+    pygame.display.set_caption("Client")
     while True:
-        menu_screen()
+        menu_screen(win)
 
 
-run_client()
+if __name__ == "__main__":
+    # when running client manually
+    run_client()
+else:
+    # when running server
+    print("enterd from server")
+

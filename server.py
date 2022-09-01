@@ -3,6 +3,7 @@ from _thread import *
 import pickle
 from server_gui import server_gui
 import pygame
+import client
 
 from game import Game
 
