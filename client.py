@@ -30,6 +30,10 @@ paper_sound = vlc.MediaPlayer("assets/audio/paper_sound.mp3")
 paper_sound.audio_set_volume(110)
 scissors_sound = vlc.MediaPlayer("assets/audio/scissors_sound.mp3")
 scissors_sound.audio_set_volume(80)
+win_sound = vlc.MediaPlayer("assets/audio/win_sound.mp3")
+win_sound.audio_set_volume(80)
+lose_sound = vlc.MediaPlayer("assets/audio/lose_sound.mp3")
+lose_sound.audio_set_volume(80)
 
 pygame.font.init()
 value = 0
@@ -47,7 +51,15 @@ banner_image = pygame.image.load("assets/Banner_Title.png")
 banner_image = pygame.transform.scale(banner_image, (width, 150))
 lock_image = pygame.image.load("assets/lock.png")
 lock_image = pygame.transform.scale(lock_image, (150, 150))
-
+lose_win_sprite = {"win": {"anim": [Animation("assets/win/sparkle_frames")],
+                           "images": [pygame.transform.scale(pygame.image.load("assets/win/congrats.png"),(width-100, 150)),
+                                      pygame.transform.scale(pygame.image.load("assets/win/cup.png"),(width-200, 200))],
+                           "sound": win_sound
+                           },
+                   "lose": {"anim": [Animation("assets/lose/loser_frames")],
+                            "images": [pygame.image.load("assets/lose/sign.png")],
+                            "sound": lose_sound}
+                   }
 # crowns
 winner_crown = pygame.image.load("assets/winner_crown.png")
 loser_crown = pygame.image.load("assets/loser_crown.png")
@@ -63,12 +75,25 @@ def get_btn(move):
             return btn
 
 
-def winner_window(window, game, p):
-    window.fill(color=(135, 206, 255))
+def winner_lose_window(window,mode = "win",pos_sign = (50, 150),pos2 = (90, 350),pos_anim = (0,0),scale = (700,700)):
+    timer = Timer(5)
+    played = False
+    while timer.check_timer():
+        lose_win_sprite[mode]["sound"].play()
+        window.fill(color=(135, 206, 255))
+        window.blit(banner_image, (0, -20))
+        window.blit(lose_win_sprite[mode]["images"][0], pos_sign)
+        if mode == "win":
+            window.blit(lose_win_sprite[mode]["images"][1], pos2)
+        pygame.display.update()
+        lose_win_sprite[mode]["anim"][0].create_loading_animation(window, width, height, delay=20, x_scale=scale[0],
+                                                                  y_scale=scale[1], pos=pos_anim)
 
+        # if not played or mode == "lose":
+        #     lose_win_sprite[mode]["anim"][0].create_loading_animation(window,width,height,delay=20,x_scale=scale[0],y_scale=scale[1],pos = pos_anim)
+        #     played = True
 
-def loser_window(window, game, p):
-    window.fill(color=(135, 206, 255))
+    lose_win_sprite[mode]["sound"].stop()
 
 
 def redrawWindow(window, game, p):
@@ -179,15 +204,18 @@ def main():
 
             font = pygame.font.SysFont("comicsans", 90)
             if (game.winner() == 1 and player == 1) or (game.winner() == 0 and player == 0):
+                winner_lose_window(win,mode = "win",pos_sign = (50, 150),pos2 = (90, 350),pos_anim = (0,0),scale = (700,700))
                 text = font.render("You Won!", 1, (255, 0, 0))
                 n.send("W" + str(player))
             elif game.winner() == -1:
                 text = font.render("Tie Game!", 1, (255, 0, 0))
+                win.blit(text, (width / 2 - text.get_width() / 2, height / 2 - text.get_height() / 2))
+                pygame.display.update()
+                pygame.time.delay(2000)
             else:
+                winner_lose_window(win,mode = "lose",pos_sign = (40, 150),pos_anim = (250, 350),scale = (180,180))
                 text = font.render("You Lost...", 1, (255, 0, 0))
-            win.blit(text, (width / 2 - text.get_width() / 2, height / 2 - text.get_height() / 2))
-            pygame.display.update()
-            pygame.time.delay(2000)
+
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
