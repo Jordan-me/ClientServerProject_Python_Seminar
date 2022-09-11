@@ -1,0 +1,4 @@
+	log_service, load_from_file: data loaded successfully.
+ServerGui: server started successfully
+Server: run, start listening to (localhost,5555)
+Server: run, Waiting for a connection, Server Started

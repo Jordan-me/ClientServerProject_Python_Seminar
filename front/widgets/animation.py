@@ -7,8 +7,6 @@ class Animation:
     def __init__(self, path, red=None):
         self.path = path
         self.images = []
-        # self.red_timer = pygame.image.load("assets/timer/end_timer.png")
-        # self.blue_timer = pygame.image.load("assets/timer/base_clock.png")
         self.red = red
         self.load_images_from_folder()
 
@@ -24,7 +22,7 @@ class Animation:
 
     def create_loading_animation(self, screen, width, height, delay=50, text=None, x_scale=700, y_scale=700,
                                  pos=(0, 0)):
-        # Setting the framerate to 3fps just
+        # Setting the frame rate to 3fps just
         # to see the result properly
         if text is not None:
             font = pygame.font.SysFont("comicsans", 30)

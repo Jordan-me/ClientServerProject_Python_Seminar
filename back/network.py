@@ -1,6 +1,8 @@
 import socket
 import pickle
 
+from back.log_service import add_log_warnning
+
 
 class Network:
     def __init__(self):
@@ -19,6 +21,7 @@ class Network:
             a = self.client.recv(2048).decode()
             return a
         except:
+            add_log_warnning("Network, connect: did not succeed to connect")
             pass
 
     def send(self, data):
@@ -26,4 +29,4 @@ class Network:
             self.client.send(str.encode(data))
             return pickle.loads(self.client.recv(2048*2))
         except socket.error as e:
-            print(e)
+            add_log_warnning("Network: send, socket.error (" + str(e) + ")")

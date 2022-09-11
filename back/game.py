@@ -1,5 +1,9 @@
+from datetime import datetime
+
+
 class Game:
     def __init__(self, id):
+        self.time_created = datetime.now().strftime("%d/%m/%Y, %H:%M:%S")
         self.p1Went = False
         self.p2Went = False
         self.p1Name = ''
@@ -9,6 +13,7 @@ class Game:
         self.moves = [None, None]
         self.wins = [0, 0]
         self.ties = 0
+        self.close = False
 
     def get_player_move(self, p):
         """
@@ -55,9 +60,6 @@ class Game:
             winner = 0
         elif p1 == "P" and p2 == "S":
             winner = 1
-
-        # if winner != -1:
-        #     self.wins[winner] += 1
         return winner
 
     def isTie(self, p, op):
@@ -66,6 +68,21 @@ class Game:
     def isWinner(self, p, op):
         return self.wins[p] > self.wins[op]
 
+    def getWinnerName(self):
+        if self.wins[0] == self.wins[1]:
+            return "-"
+        return self.p1Name if self.wins[0] > self.wins[1] else self.p2Name
+
     def resetWent(self):
         self.p1Went = False
         self.p2Went = False
+
+    def isEqual(self, game):
+        if not (self.wins[0] == game.wins[0] and self.wins[1] == game.wins[1]):
+            return False
+        elif self.p1Name != game.p1Name:
+            return False
+        elif self.p2Name != game.p2Name:
+            return False
+        else:
+            return True
