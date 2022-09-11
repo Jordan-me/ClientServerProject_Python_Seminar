@@ -21,49 +21,49 @@ class Client():
         self.opponent_score = 0
         # Setup for sounds, defaults are good
         pygame.mixer.init()
-        self.loading_sound = vlc.MediaPlayer("assets/audio/music_zapsplat_astro_race.mp3")
+        self.loading_sound = vlc.MediaPlayer("../assets/audio/music_zapsplat_astro_race.mp3")
         self.loading_sound.audio_set_volume(80)
         # sounds effect
-        self.rock_sound = vlc.MediaPlayer("assets/audio/rocks_sound.mp3")
+        self.rock_sound = vlc.MediaPlayer("../assets/audio/rocks_sound.mp3")
         self.rock_sound.audio_set_volume(80)
-        self.paper_sound = vlc.MediaPlayer("assets/audio/paper_sound.mp3")
+        self.paper_sound = vlc.MediaPlayer("../assets/audio/paper_sound.mp3")
         self.paper_sound.audio_set_volume(110)
-        self.scissors_sound = vlc.MediaPlayer("assets/audio/scissors_sound.mp3")
+        self.scissors_sound = vlc.MediaPlayer("../assets/audio/scissors_sound.mp3")
         self.scissors_sound.audio_set_volume(80)
-        self.win_sound = vlc.MediaPlayer("assets/audio/win_sound.mp3")
+        self.win_sound = vlc.MediaPlayer("../assets/audio/win_sound.mp3")
         self.win_sound.audio_set_volume(80)
-        self.lose_sound = vlc.MediaPlayer("assets/audio/lose_sound.mp3")
+        self.lose_sound = vlc.MediaPlayer("../assets/audio/lose_sound.mp3")
         self.lose_sound.audio_set_volume(80)
 
         # images
-        self.bg = pygame.image.load("assets/menuScreen3.jpg")
+        self.bg = pygame.image.load("../assets/menuScreen3.jpg")
         self.bg = pygame.transform.scale(self.bg, (self.width, self.height))
-        self.bg_loading = pygame.transform.scale(pygame.image.load("assets/waitScreen.gif"), (self.width, self.height))
-        self.bg_loading_sprite = Animation("assets/loading_frames")
-        self.banner_image = pygame.image.load("assets/Banner_Title.png")
+        self.bg_loading = pygame.transform.scale(pygame.image.load("../assets/waitScreen.gif"), (self.width, self.height))
+        self.bg_loading_sprite = Animation("../assets/loading_frames")
+        self.banner_image = pygame.image.load("../assets/Banner_Title.png")
         self.banner_image = pygame.transform.scale(self.banner_image, (self.width, 150))
-        self.lock_image = pygame.image.load("assets/lock.png")
+        self.lock_image = pygame.image.load("../assets/lock.png")
         self.lock_image = pygame.transform.scale(self.lock_image, (150, 150))
-        self.wait_sprite = Animation("assets/waiting_frames")
-        self.lose_win_sprite = {"win": {"anim": [Animation("assets/win/sparkle_frames")],
+        self.wait_sprite = Animation("../assets/waiting_frames")
+        self.lose_win_sprite = {"win": {"anim": [Animation("../assets/win/sparkle_frames")],
                                         "images": [
-                                            pygame.transform.scale(pygame.image.load("assets/win/congrats.png"),
+                                            pygame.transform.scale(pygame.image.load("../assets/win/congrats.png"),
                                                                    (self.width - 100, 150)),
-                                            pygame.transform.scale(pygame.image.load("assets/win/cup.png"),
+                                            pygame.transform.scale(pygame.image.load("../assets/win/cup.png"),
                                                                    (self.width - 200, 200))],
                                         "sound": self.win_sound
                                         },
-                                "lose": {"anim": [Animation("assets/lose/loser_frames")],
-                                         "images": [pygame.image.load("assets/lose/sign.png")],
+                                "lose": {"anim": [Animation("../assets/lose/loser_frames")],
+                                         "images": [pygame.image.load("../assets/lose/sign.png")],
                                          "sound": self.lose_sound}
                                 }
         # crowns
-        self.winner_crown = pygame.image.load("assets/winner_crown.png")
-        self.loser_crown = pygame.image.load("assets/loser_crown.png")
+        self.winner_crown = pygame.image.load("../assets/winner_crown.png")
+        self.loser_crown = pygame.image.load("../assets/loser_crown.png")
         # rps images
-        self.rock = pygame.image.load("assets/rock.png")
-        self.paper = pygame.image.load("assets/paper.png")
-        self.scissors = pygame.image.load("assets/scissors.png")
+        self.rock = pygame.image.load("../assets/rock.png")
+        self.paper = pygame.image.load("../assets/paper.png")
+        self.scissors = pygame.image.load("../assets/scissors.png")
         self.btns = [Button("Rock", 150, 150, (50, 500), 5, audio=self.rock_sound, image=self.rock),
                      Button("Scissors", 150, 150, (250, 500), 5, audio=self.scissors_sound, image=self.scissors),
                      Button("Paper", 150, 150, (450, 500), 5, audio=self.paper_sound, image=self.paper)]
