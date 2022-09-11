@@ -2,5 +2,10 @@
 ServerGui: server started successfully
 Server: run, start listening to (localhost,5555)
 Server: run, Waiting for a connection, Server Started
-ServerGui: close_game, No game has been chosen to close
-ServerGui: close_game, No game has been chosen to close
+ServerGui: create_player_process, open client forasdas successfully
+ServerGui: add_player_to_game, player asdasadded successfully
+ServerGui: add_player_to_game, open client for player asdas
+Server: run, got connection (<socket.socket fd=1792, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('127.0.0.1', 5555), raddr=('127.0.0.1', 61535)>,('127.0.0.1', 61535))
+Server: run, access to game_id: 4
+Server: run, Creating a new game... 4
+Server: threaded_client, got name for player 0in game_id: 4successfully

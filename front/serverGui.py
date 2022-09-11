@@ -90,7 +90,7 @@ class ServerGui:
         if len(txt) != 0 and txt.replace('_', '').isalpha():
             # if the names are not the same
             self.name.setText('')
-            create_player_process(txt)
+            create_client_process(txt)
 
             add_log_info("ServerGui: add_player_to_game, player " + txt + "added successfully")
             self.warning.setText(txt + " wait for game to start")
@@ -110,9 +110,6 @@ class ServerGui:
             add_log_info("ServerGui: close_game, No game has been chosen to close")
 
     def exit(self):
-        """
-        closing all connections and closing the app
-        """
         # write to file all the games from table
         write_to_file(self.server.players_connected, self.server.games)
         # Close all open games
@@ -126,10 +123,10 @@ class ServerGui:
         super().exit_app()
 
 
-def create_player_process(name):
+def create_client_process(name):
     """
-    creating and starting new game process
-    :param player_new: player object
+    starting new client process
+    :param name: player name
     """
     add_log_info("ServerGui: create_player_process, open client for"+name +" successfully")
     player_process = multiprocessing.Process(target=Client, args=(name,))
